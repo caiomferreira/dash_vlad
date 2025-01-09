@@ -189,22 +189,22 @@ if st.session_state["authentication_status"]:
 
     fig_sazon = go.Figure()
     fig_sazon.add_trace(go.Line(
-        x=data_saz['dia_mes'],
+        x=data_saz.index,
         y=data_saz[ativo],
         name='Ciclo',
         line=dict(color='steelblue'),
     ))
     fig_sazon.add_trace(go.Line(
-        x=data_saz_destaq['dia_mes'],
+        x=data_saz_destaq.index,
         y=data_saz_destaq[ativo],
         name=ano_destaq,
         line=dict(color='green'),
     ))
 
-    fig_sazon.update_xaxes(
-    dtick="M1",
-    tickformat="%b",
-    ticklabelmode="period")
+    # fig_sazon.update_xaxes(
+    # dtick="M1",
+    # tickformat="%b",
+    # ticklabelmode="period")
 
     fig_sazon.update_layout(xaxis_title='Trading',  yaxis=dict(title='Retorno %'),
                       title=f'Ciclo', margin=dict(l=40, r=40, t=40, b=40),
