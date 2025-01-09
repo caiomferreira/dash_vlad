@@ -4,4 +4,4 @@ pandas
 plotly
 numpy
 streamlit_authenticator
-pyyaml==6.0
+pyyaml
