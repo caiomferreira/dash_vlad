@@ -1,0 +1,16 @@
+credentials:
+  usernames:
+    vlad:
+      email: vlad.luxx@gmail.com
+      logged_in: False
+      name: Fabio Figueiredo
+      password: Vlad@123
+    admin:
+      email: admin
+      logged_in: False
+      name: admin
+      password: adm@123
+cookie:
+  expiry_days: 1
+  key: some_signature_key
+  name: some_cookie_name
