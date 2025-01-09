@@ -147,11 +147,11 @@ if st.session_state["authentication_status"]:
 
     #Calculo total
     #data_saz = data_saz.set_index(np.arange(1,len(data_saz)+1))
-    data_saz.loc[0] = 0
+    
     data_saz.sort_index(inplace=True)
 
     data_saz_destaq = data_saz_destaq.set_index(np.arange(1,len(data_saz_destaq)+1))
-    data_saz_destaq.loc[0] = 0
+    
     data_saz_destaq.sort_index(inplace=True)
     data_saz_destaq = data_saz_destaq.add(1).cumprod().sub(1)*100
     data_saz_destaq = np.round(data_saz_destaq,3)
