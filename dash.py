@@ -79,20 +79,23 @@ if st.session_state["authentication_status"]:
     anos_disp = ciclos[ciclo_set]
 
     dados = dados.rename(columns={ticker_yf:ativo})
-    dados = dados.pct_change().dropna()
+    
     first_day = dados.index[0].strftime('%d/%m/%Y')
     last_day = dados.index[-1].strftime('%d/%m/%Y')
     dados = dados[dados.index.year.isin(anos_disp)]
     anos_disp = dados.index.year.unique()
     anos_disp = anos_disp[1:]
-
+    
+    dados_month = dados.resample('M').last()
+    dados_month = dados_month.pct_change().dropna()
+    dados = dados.pct_change().dropna()
 
     # Tratamento de dados
     data_saz = dados.copy()
     dados_day_week = dados.copy()
     dados_day_week['day'] = dados_day_week.index.dayofweek
     dados_day_week['year'] = dados_day_week.index.strftime('%Y')
-    dados_month = dados.resample('M').last()
+    
     dados_month['month'] = dados_month.index.strftime('%m')
     dados_month['year'] = dados_month.index.strftime('%Y')
 
@@ -103,6 +106,7 @@ if st.session_state["authentication_status"]:
     data_saz = data_saz.groupby(data_saz.index.year).apply(lambda x: x.values.flatten()).apply(pd.Series).T
     data_saz_destaq = pd.DataFrame(data_saz[ano_destaq]).rename(columns={ano_destaq:ativo})
 
+    
 
     # Dados Semanais
     week_day_dict = {
@@ -139,9 +143,10 @@ if st.session_state["authentication_status"]:
     dados_month_destaq.index = pd.to_numeric(dados_month_destaq.index)
     dados_month_destaq.index = dados_month_destaq.index.map(month_dict)
     dados_month_destaq = np.round(dados_month_destaq,3)
+       
 
     #Calculo total
-    data_saz = data_saz.set_index(np.arange(1,len(data_saz)+1))
+    #data_saz = data_saz.set_index(np.arange(1,len(data_saz)+1))
     data_saz.loc[0] = 0
     data_saz.sort_index(inplace=True)
 
@@ -150,12 +155,17 @@ if st.session_state["authentication_status"]:
     data_saz_destaq.sort_index(inplace=True)
     data_saz_destaq = data_saz_destaq.add(1).cumprod().sub(1)*100
     data_saz_destaq = np.round(data_saz_destaq,3)
+    data_saz_destaq['dia_mes'] = pd.date_range(start='2024-01-01', 
+                                        periods=data_saz_destaq.shape[0], freq='B')
+                                        
 
     ###
 
     data_saz = pd.DataFrame(data_saz.mean(axis=1)).rename(columns={0:ativo})
     data_saz = data_saz.add(1).cumprod().sub(1)*100
     data_saz = np.round(data_saz,3)
+    data_saz['dia_mes'] = pd.to_datetime(pd.date_range(start='2024-01-01', 
+                                        periods=data_saz.shape[0], freq='B'))
 
 
     #Calculo dia da semana
@@ -179,24 +189,32 @@ if st.session_state["authentication_status"]:
 
     fig_sazon = go.Figure()
     fig_sazon.add_trace(go.Line(
-        x=data_saz.index,
+        x=data_saz['dia_mes'],
         y=data_saz[ativo],
         name='Ciclo',
         line=dict(color='steelblue'),
     ))
     fig_sazon.add_trace(go.Line(
-        x=data_saz_destaq.index,
+        x=data_saz_destaq['dia_mes'],
         y=data_saz_destaq[ativo],
         name=ano_destaq,
         line=dict(color='green'),
     ))
 
+    fig_sazon.update_xaxes(
+    dtick="M1",
+    tickformat="%b",
+    ticklabelmode="period")
+
     fig_sazon.update_layout(xaxis_title='Trading',  yaxis=dict(title='Retorno %'),
                       title=f'Ciclo', margin=dict(l=40, r=40, t=40, b=40),
                       height = 400)
 
+    data_saz.index = pd.to_datetime(data_saz.index).strftime('%d-%b') 
+    data_saz.drop(columns='dia_mes',inplace=True)
 
-
+    data_saz_destaq.index = pd.to_datetime(data_saz_destaq.index).strftime('%d-%b') 
+    data_saz_destaq.drop(columns='dia_mes',inplace=True)
 
     # Grafico dia da semana
     fig_day_week = go.Figure()
