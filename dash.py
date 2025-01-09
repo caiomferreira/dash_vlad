@@ -33,7 +33,7 @@ ativo = st.sidebar.selectbox('Escolha o Ativo',options=tickers_options)
 ticker_yf = tickers_dict[ativo]
 
 
-dados = yf.download(ticker_yf,start='1994-12-29')['Adj Close']
+dados = yf.download(ticker_yf,start='1994-12-29')['Close']
 anos = dados.index.year.unique()
 anos = anos[1:]
 anos_eleito = np.arange(1998,anos[-1]+1,4)
